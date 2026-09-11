@@ -99,10 +99,16 @@ const Login = ({ setCurrentPage }) => {
           >
             Sign Up <ArrowRight className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => setCurrentPage('forgot-password')}
+            className="ml-4 text-blue-600 dark:text-blue-400 font-semibold hover:underline inline-flex items-center gap-1"
+          >
+            Forgot Password?
+          </button>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default Login;

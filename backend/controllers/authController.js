@@ -115,6 +115,62 @@ export const resendVerificationCode = async (req, res) => {
     }
 }
 
+// forgot password
+export const forgotPassword = async (req, res) => {
+    const {email} = req.body;
+    
+    if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+    }
+
+    try {
+        const user = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+        if (user.rows.length === 0) {
+            return res.status(404).json({message: "user not found"});
+        }        
+        else {
+            const verification_Code = Math.floor(100000 + Math.random()* 900000).toString();
+            const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+            await db.query("UPDATE users SET verification_code = $1,  verification_expires_at = $2 WHERE email = $3", [verification_Code, expiresAt, email]);
+            await sendVerificationEmail(email, verification_Code);
+            res.status(200).json({message: "Verification code sent to your email."});
+        }
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({message: "server error"});
+    }
+}
+
+// reset password
+export const resetPassword = async (req, res) => {
+    const {email,code,newpassword} = req.body;
+    if (!email || !code || !newpassword) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    try {
+        const user = await db.query("SELECT * FROM users WHERE  email= $1 AND  verification_Code= $2", [email, code]);
+        if (user.rows.length === 0) {
+            return res.status(404).json({message: "user not found"});
+        }  
+        const userData = user.rows[0];
+        const currentTime = new Date().getTime();
+        const expiryTime = new Date(userData.verification_expires_at).getTime();
+        if (currentTime > expiryTime) {
+            return res.status(400).json({ message: "The code has expired; please request a new code."});
+        }      
+        const round = 10;
+        const hashedPassword = await bcrypt.hash(newpassword, round);
+        await db.query("UPDATE users SET password = $1, verification_code = NULL, verification_expires_at = NULL WHERE  email = $2  ", [hashedPassword, email]);
+        res.status(200).json({message: "reset password successfully."});
+        
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({message: "server error"});
+    }
+
+}
+
 // login user
 export const login = async (req, res) => {
     const { email, password } = req.body;

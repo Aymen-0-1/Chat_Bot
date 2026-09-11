@@ -20,6 +20,15 @@ export const authService = {
         return response.data;
     },
 
+    forgotPassword: async (email) => {
+        const response = await axios.post(`${API_URL}/forgot-password`,{email});
+        return response.data;
+    },
+    resetPassword: async (email,code,newpassword) => {
+        const response = await axios.post(`${API_URL}/reset-password`,{email,code,newpassword});
+        return response.data;
+    },
+
     login: async (userData) => {
         const response = await axios.post(`${API_URL}/login`, userData);
         if (response.data.user) {

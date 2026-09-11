@@ -6,11 +6,12 @@ import Home from './pages/Home';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import VerifyEmail from './pages/VerifyEmail'; // 👈 استيراد مكون تأكيد الإيميل
+import VerifyEmail from './pages/VerifyEmail'; 
+import ForgotPassword from './components/forgotPassword';  
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('login'); // 👈 الحالة لتحديد الصفحة الحالية
-  const [registeredEmail, setRegisteredEmail] = useState(''); // 👈 حالة لحفظ الإيميل بعد التسجيل
+  const [currentPage, setCurrentPage] = useState('login');   
+  const [registeredEmail, setRegisteredEmail] = useState(''); 
 
   return (
     <ThemeProvider>
@@ -24,6 +25,11 @@ function App() {
             setCurrentPage={setCurrentPage} 
             setRegisteredEmail={setRegisteredEmail} // 👈 تمرير الدالة لتسجيل الإيميل
           />
+        )}
+
+        {/* 🟢 العرض وتمرير دالة العودة للـ Login */}
+        {currentPage === 'forgot-password' && (
+          <ForgotPassword onBackToLogin={() => setCurrentPage('login')} />
         )}
 
         {currentPage === 'verify-email' && (
